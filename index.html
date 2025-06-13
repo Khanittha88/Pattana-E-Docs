@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ระบบสารบรรณกลุ่มพัฒนาการศึกษา สำนักงานศึกษาธิการจังหวัดอุบลราชธานี</title>
+
+<!-- ฟ้อนต์ Sukumvit: ใช้ Google Fonts แทน -->
+<link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet" />
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+  /* ธีมสีหลัก */
+  :root {
+    --color-primary: #0f1440;
+    --color-secondary: #e46700;
+    --color-accent: #ebcb1e;
+  }
+
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Kanit', sans-serif;
+    background-color: #f5f5f5;
+    color: var(--color-primary);
+  }
+
+  header {
+    background-color: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+  }
+
+  header img.logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+  }
+
+  header h1 {
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+
+  nav {
+    background-color: var(--color-primary);
+    display: flex;
+    justify-content: space-around;
+  }
+
+  nav button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 15px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+
+  nav button:hover, nav button.active {
+    background-color: var(--color-secondary);
+  }
+
+  main {
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    background-color: white;
+    box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+    margin-top: 20px;
+    border-radius: 8px;
+  }
+
+  h2 {
+    color: var(--color-primary);
+    margin-bottom: 15px;
+  }
+
+  label {
+    display: block;
+    margin-top: 10px;
+    font-weight: 600;
+  }
+
+  input[type="text"], input[type="date"], input[type="time"], select, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  button.save-btn {
+    margin-top: 15px;
+    background-color: var(--color-secondary);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button.save-btn:hover {
+    background-color: var(--color-accent);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+
+  th {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  /* ชั้นความเร็ว */
+  .speed-ด่วนที่สุด { color: white; background-color: red; padding: 2px 6px; border-radius: 3px; }
+  .speed-ด่วนมาก { color: black; background-color: yellow; padding: 2px 6px; border-radius: 3px; }
+  .speed-ด่วน { color: white; background-color: blue; padding: 2px 6px; border-radius: 3px; }
+  .speed-ปกติ { color: white; background-color: green; padding: 2px 6px; border-radius: 3px; }
+
+  /* ชั้นความลับ */
+  .secret-ลับที่สุด { color: black; background-color: yellow; padding: 2px 6px; border-radius: 3px; }
+  .secret-ลับมาก { color: white; background-color: red; padding: 2px 6px; border-radius: 3px; }
+  .secret-ลับ { color: white; background-color: blue; padding: 2px 6px; border-radius: 3px; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <img src="https://img2.pic.in.th/pic/Logo-Ubnpeofc3812ce8a9f1a77.jpg" alt="โลโก้ ศธจ.อุบล" class="logo" />
+  <h1>ระบบสารบรรณ ศธจ.อุบลราชธานี</h1>
+</header>
+
+<nav>
+  <button id="menu-dashboard" class="active">🏠 หน้าแรก</button>
+  <button id="menu-register">🔼 ทะเบียนหนังสือรับ</button>
+  <button id="menu-staff">เจ้าหน้าที่</button>
+  <button id="menu-report">📊 สรุปรายงาน</button>
+</nav>
+
+<main id="content">
+
+  <!-- หน้า Dashboard -->
+  <section id="dashboard" style="display: block;">
+    <h2>ภาพรวมหนังสือรับประจำวัน</h2>
+    <div>จำนวนหนังสือที่รับวันนี้: <span id="countToday">0</span> เล่ม</div>
+    <h3>หนังสือเพิ่มล่าสุด</h3>
+    <table id="latestBooksTable">
+      <thead>
+        <tr>
+          <th>วันที่รับ</th>
+          <th>เลขสารบรรณกลาง</th>
+          <th>เรื่อง</th>
+          <th>ชั้นความเร็ว</th>
+          <th>ชั้นความลับ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- แถวข้อมูลจะถูกเติมด้วย JS -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- หน้า ทะเบียนหนังสือรับ -->
+  <section id="register" style="display:none;">
+    <h2>ทะเบียนหนังสือรับ</h2>
+    <form id="bookForm">
+      <label>วันที่รับหนังสือ</label>
+      <input type="date" id="bookDate" required />
+      <label>เวลา</label>
+      <input type="time" id="bookTime" required />
+
+      <label>เลขสารบรรณกลาง</label>
+      <input type="text" id="centralDocNo" required />
+
+      <label>เลขสารบรรณกลุ่มพัฒนาการศึกษา</label>
+      <input type="text" id="groupDocNo" required />
+
+      <label>ชั้นความเร็ว</label>
+      <select id="speedLevel" required>
+        <option value="">--เลือก--</option>
+        <option value="ด่วนที่สุด" style="color:white; background-color:red;">ด่วนที่สุด</option>
+        <option value="ด่วนมาก" style="color:black; background-color:yellow;">ด่วนมาก</option>
+        <option value="ด่วน" style="color:white; background-color:blue;">ด่วน</option>
+        <option value="ปกติ" style="color:white; background-color:green;">ปกติ</option>
+      </select>
+
+      <label>ชั้นความลับ</label>
+      <select id="secretLevel" required>
+        <option value="">--เลือก--</option>
+        <option value="ลับที่สุด" style="color:black; background-color:yellow;">ลับที่สุด</option>
+        <option value="ลับมาก" style="color:white; background-color:red;">ลับมาก</option>
+        <option value="ลับ" style="color:white; background-color:blue;">ลับ</option>
+      </select>
+
+      <label>ที่หนังสือ - ลงวันที่ - จากหน่วยงาน</label>
+      <input type="text" id="sourceDepartment" list="departmentList" />
+
+      <datalist id="departmentList">
+        <!-- ชื่อหน่วยงานเก็บไว้ใน localStorage จะเติมตรงนี้ -->
+      </datalist>
+
+      <label>เรียน</label>
+      <input type="text" id="forWhom" />
+
+      <label>เรื่อง</label>
+      <select id="staffSelect" required>
+        <option value="">--เลือกเจ้าหน้าที่--</option>
+        <!-- เติมข้อมูลเจ้าหน้าที่จาก localStorage -->
+      </select>
+
+      <label>หมายเหตุเพิ่มเติม</label>
+      <textarea id="remark" rows="3"></textarea>
+
+      <button type="submit" class="save-btn">บันทึกข้อมูลในเครื่อง</button>
+    </form>
+
+    <h3>รายการหนังสือที่รับ</h3>
+    <table id="bookTable">
+      <thead>
+        <tr>
+          <th>วันที่รับ</th>
+          <th>เวลา</th>
+          <th>เลขสารบรรณกลาง</th>
+          <th>เลขสารบรรณกลุ่ม</th>
+          <th>ชั้นความเร็ว</th>
+          <th>ชั้นความลับ</th>
+          <th>ที่หนังสือ</th>
+          <th>เรียน</th>
+          <th>เรื่อง</th>
+          <th>หมายเหตุ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- เติมข้อมูลด้วย JS -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- หน้า เจ้าหน้าที่ -->
+  <section id="staff" style="display:none;">
+    <h2>บันทึกข้อมูลเจ้าหน้าที่</h2>
+    <form id="staffForm">
+      <label>ชื่อ-นามสกุล</label>
+      <input type="text" id="staffName" required />
+      <label>ตำแหน่ง</label>
+      <input type="text" id="staffPosition" required />
+      <button type="submit" class="save-btn">บันทึกข้อมูลเจ้าหน้าที่ในเครื่อง</button>
+    </form>
+
+    <h3>รายชื่อเจ้าหน้าที่</h3>
+    <table id="staffTable">
+      <thead>
+        <tr><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th></tr>
+      </thead>
+      <tbody>
+        <!-- เติมข้อมูลด้วย JS -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- หน้า รายงาน -->
+  <section id="report" style="display:none;">
+    <h2>สรุปรายงาน</h2>
+    <div id="reportContent">
+      <p>รายงานสรุปจะพัฒนาต่อไป</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // จัดการแสดงหน้า
+  const pages = ['dashboard', 'register', 'staff', 'report'];
+  const menuButtons = {
+    dashboard: document.getElementById('menu-dashboard'),
+    register: document.getElementById('menu-register'),
+    staff: document.getElementById('menu-staff'),
+    report: document.getElementById('menu-report'),
+  };
+
+  function showPage(page) {
+    pages.forEach(p => {
+      document.getElementById(p).style.display = p === page ? 'block' : 'none';
+      menuButtons[p].classList.toggle('active', p === page);
+    });
+  }
+
+  Object.keys(menuButtons).forEach(key => {
+    menuButtons[key].addEventListener('click', () => showPage(key));
+  });
+
+  showPage('dashboard');
+
+  // Local Storage keys
+  const LS_BOOKS = 'ubn_books';
+  const LS_STAFF = 'ubn_staff';
+  const LS_DEPARTMENTS = 'ubn_departments';
+
+  // โหลดข้อมูลจาก localStorage
+  function loadBooks() {
+    const data = localStorage.getItem(LS_BOOKS);
+    return data ? JSON.parse(data) : [];
+  }
+  function saveBooks(data) {
+    localStorage.setItem(LS_BOOKS, JSON.stringify(data));
+  }
+
+  function loadStaff() {
+    const data = localStorage.getItem(LS_STAFF);
+    return data ? JSON.parse(data) : [];
+  }
+  function saveStaff(data) {
+    localStorage.setItem(LS_STAFF, JSON.stringify(data));
+  }
+
+  function loadDepartments() {
+    const data = localStorage.getItem(LS_DEPARTMENTS);
+    return data ? JSON.parse(data) : [];
+  }
+  function saveDepartments(data) {
+    localStorage.setItem(LS_DEPARTMENTS, JSON.stringify(data));
+  }
+
+  // เติมข้อมูลตารางหนังสือที่รับ
+  function renderBooksTable() {
+    const books = loadBooks();
+    const tbody = document.querySelector('#bookTable tbody');
+    tbody.innerHTML = '';
+    books.forEach(b => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${b.bookDate}</td>
+        <td>${b.bookTime}</td>
+        <td>${b.centralDocNo}</td>
+        <td>${b.groupDocNo}</td>
+        <td><span class="speed-${b.speedLevel}">${b.speedLevel}</span></td>
+        <td><span class="secret-${b.secretLevel}">${b.secretLevel}</span></td>
+        <td>${b.sourceDepartment}</td>
+        <td>${b.forWhom}</td>
+        <td>${b.staffName}</td>
+        <td>${b.remark}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // เติมข้อมูลตารางเจ้าหน้าที่
+  function renderStaffTable() {
+    const staffList = loadStaff();
+    const tbody = document.querySelector('#staffTable tbody');
+    tbody.innerHTML = '';
+    staffList.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${s.name}</td><td>${s.position}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    // เติม dropdown เจ้าหน้าที่ในฟอร์มหนังสือรับ
+    const staffSelect = document.getElementById('staffSelect');
+    staffSelect.innerHTML = '<option value="">--เลือกเจ้าหน้าที่--</option>';
+    staffList.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.name;
+      opt.textContent = `${s.name} (${s.position})`;
+      staffSelect.appendChild(opt);
+    });
+  }
+
+  // เติม datalist หน่วยงาน
+  function renderDepartmentList() {
+    const departments = loadDepartments();
+    const datalist = document.getElementById('departmentList');
+    datalist.innerHTML = '';
+    departments.forEach(dep => {
+      const opt = document.createElement('option');
+      opt.value = dep;
+      datalist.appendChild(opt);
+    });
+  }
+
+  // ฟอร์มเพิ่มหนังสือรับ submit
+  document.getElementById('bookForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const bookDate = this.bookDate.value;
+    const bookTime = this.bookTime.value;
+    const centralDocNo = this.centralDocNo.value.trim();
+    const groupDocNo = this.groupDocNo.value.trim();
+    const speedLevel = this.speedLevel.value;
+    const secretLevel = this.secretLevel.value;
+    const sourceDepartment = this.sourceDepartment.value.trim();
+    const forWhom = this.forWhom.value.trim();
+    const staffName = this.staffSelect.value;
+    const remark = this.remark.value.trim();
+
+    if (!bookDate || !bookTime || !centralDocNo || !groupDocNo || !speedLevel || !secretLevel || !staffName) {
+      Swal.fire('กรุณากรอกข้อมูลให้ครบทุกช่องที่จำเป็น');
+      return;
+    }
+
+    // บันทึกชื่อหน่วยงานถ้าไม่ซ้ำ
+    let departments = loadDepartments();
+    if (sourceDepartment && !departments.includes(sourceDepartment)) {
+      departments.push(sourceDepartment);
+      saveDepartments(departments);
+      renderDepartmentList();
+    }
+
+    // บันทึกข้อมูลหนังสือ
+    let books = loadBooks();
+    books.push({
+      bookDate, bookTime, centralDocNo, groupDocNo,
+      speedLevel, secretLevel, sourceDepartment, forWhom, staffName, remark
+    });
+    saveBooks(books);
+
+    Swal.fire('บันทึกข้อมูลเรียบร้อยแล้ว!');
+
+    this.reset();
+    renderBooksTable();
+    updateDashboard();
+  });
+
+  // ฟอร์มเพิ่มเจ้าหน้าที่ submit
+  document.getElementById('staffForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = this.staffName.value.trim();
+    const position = this.staffPosition.value.trim();
+
+    if (!name || !position) {
+      Swal.fire('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+      return;
+    }
+
+    let staffList = loadStaff();
+    staffList.push({name, position});
+    saveStaff(staffList);
+
+    Swal.fire('บันทึกข้อมูลเจ้าหน้าที่เรียบร้อยแล้ว!');
+
+    this.reset();
+    renderStaffTable();
+  });
+
+  // อัปเดต Dashboard
+  function updateDashboard() {
+    const books = loadBooks();
+    const todayStr = new Date().toISOString().slice(0,10);
+    const todayBooks = books.filter(b => b.bookDate === todayStr);
+    document.getElementById('countToday').textContent = todayBooks.length;
+
+    // เติมตารางหนังสือเพิ่มล่าสุด 5 รายการ
+    const latestTableBody = document.querySelector('#latestBooksTable tbody');
+    latestTableBody.innerHTML = '';
+    const sortedBooks = books.slice().sort((a,b) => {
+      // จัดเรียงตามวันที่+เวลา ล่าสุดก่อน
+      const dtA = new Date(a.bookDate + 'T' + a.bookTime);
+      const dtB = new Date(b.bookDate + 'T' + b.bookTime);
+      return dtB - dtA;
+    });
+    sortedBooks.slice(0,5).forEach(b => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${b.bookDate}</td>
+        <td>${b.centralDocNo}</td>
+        <td>${b.staffName}</td>
+        <td><span class="speed-${b.speedLevel}">${b.speedLevel}</span></td>
+        <td><span class="secret-${b.secretLevel}">${b.secretLevel}</span></td>
+      `;
+      latestTableBody.appendChild(tr);
+    });
+  }
+
+  // เรียกฟังก์ชันเริ่มต้น
+  renderBooksTable();
+  renderStaffTable();
+  renderDepartmentList();
+  updateDashboard();
+</script>
+
+</body>
+</html>
