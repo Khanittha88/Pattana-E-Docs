@@ -1,5 +1,5 @@
 // 👉 เปลี่ยนเป็น Script URL ของคุณเอง!
-const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxCJv9NEqn6VSFAWl4owedtEBP9UCVzM4aak9H-QJyvOpSE5iAl3_kqvH9wMnHRsKo/exec";
 
 // บันทึกหนังสือรับ
 function saveDocument() {
